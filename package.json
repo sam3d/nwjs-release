@@ -1,23 +1,23 @@
 {
-    "name":"release",
-    "version":"0.1.0",
-    "description":"automatic versioning and releasing to github",
-    "author":"Sam Holmes",
-    "preferGlobal":true,
-    "bin":{
-        "release":"index.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/samholmes1337/release.git"
-    },
-    "keywords": [
-        "release",
-        "git",
-        "version",
-        "semver"
-    ],
-    "bugs": {
-        "url": "https://github.com/samholmes1337/release/issues"
-    }
+	"name": "release",
+	"version": "0.1.0",
+	"description": "automatic versioning and releasing to github",
+	"author": "Sam Holmes",
+	"preferGlobal": true,
+	"bin": {
+		"release": "index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/samholmes1337/release.git"
+	},
+	"keywords": [
+		"release",
+		"git",
+		"version",
+		"semver"
+	],
+	"bugs": {
+		"url": "https://github.com/samholmes1337/release/issues"
+	}
 }
