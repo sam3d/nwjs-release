@@ -8,15 +8,15 @@ var type = process.argv[2];
 // Evaluate 'type argument'
 switch (type) {
     case "patch":
-        release.patch();
+        release.update.patch();
         break;
 
     case "minor":
-        release.minor();
+        release.update.minor();
         break;
 
     case "major":
-        release.major();
+        release.update.major();
         break;
 
     default:
