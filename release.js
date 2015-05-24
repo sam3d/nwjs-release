@@ -128,7 +128,7 @@ release = {
 
                 // Update version in JSON object and convert back to string
                 data.version = newVersion;
-                var data = JSON.stringify(data, null, "\t");
+                var data = JSON.stringify(data, null, "  ");
 
                 // Write JSON back into file
                 fs.writeFile("package.json", data);
