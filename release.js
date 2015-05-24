@@ -13,7 +13,7 @@ releases = {
             // Get current version
             releases.version(function(version){
 
-                // 
+                //
 
             });
 
@@ -49,7 +49,7 @@ releases = {
     version : function(callback){
 
         // Read the package.json file
-        fs.readFile("packge.json", "utf8", function(err, data){
+        fs.readFile("package.json", "utf8", function(err, data){
 
             // Throw an error if there was one
             if (err) {
@@ -57,7 +57,6 @@ releases = {
                 // Print error
                 console.log("Could not find 'package.json' in current directory");
                 console.log("Are you sure it exists?");
-                console.log("");
 
                 // End
                 process.exit(1);
