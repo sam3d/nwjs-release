@@ -171,12 +171,35 @@ releases = {
 
     // Print the manual
     man : function(){
-        console.log("");
-        console.log("Usage: release <type>");
-        console.log("    where type 'patch' will increment to -.-.x");
-        console.log("    where type 'minor' will increment to -.x.0");
-        console.log("    where type 'major' will increment to x.0.0");
-        console.log("");
+
+        // Get current version
+        fs.readFile("package.json", "utf8", function(err, data){
+
+            // If there is a 'package.json' file, show version
+            if (!err) {
+
+                // Make sure there is a version field
+                if (JSON.parse(data).version) {
+
+                    // Show current version
+                    console.log("");
+                    console.log("Found 'package.json' in current directory");
+                    console.log("Current version is " + JSON.parse(data).version);
+
+                }
+
+            }
+
+            // Print static data
+            console.log("");
+            console.log("Usage: release <type>");
+            console.log("    where type 'patch' will increment to -.-.x");
+            console.log("    where type 'minor' will increment to -.x.0");
+            console.log("    where type 'major' will increment to x.0.0");
+            console.log("");
+
+        });
+
     }
 
 }
