@@ -3,7 +3,7 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 
 // Define module
-releases = {
+release = {
 
     // All update specific functionality
     update : {
@@ -12,7 +12,7 @@ releases = {
         patch : function(){
 
             // Get current version
-            releases.version.read(function(version){
+            release.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -23,7 +23,7 @@ releases = {
                 var newVersion = major + "." + minor + "." + (patch + 1);
 
                 // Update to new version
-                releases.version.update(newVersion);
+                release.version.update(newVersion);
 
             });
 
@@ -33,7 +33,7 @@ releases = {
         minor : function(){
 
             // Get current version
-            releases.version.read(function(version){
+            release.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -44,7 +44,7 @@ releases = {
                 var newVersion = major + "." + (minor + 1) + ".0";
 
                 // Update to new version
-                releases.version.update(newVersion);
+                release.version.update(newVersion);
 
             });
 
@@ -54,7 +54,7 @@ releases = {
         major : function(){
 
             // Get current version
-            releases.version.read(function(version){
+            release.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -65,7 +65,7 @@ releases = {
                 var newVersion = (major + 1) + ".0.0";
 
                 // Update to new version
-                releases.version.update(newVersion);
+                release.version.update(newVersion);
 
             });
 
@@ -134,7 +134,7 @@ releases = {
                 fs.writeFile("package.json", data);
 
                 // Commit the changes
-                releases.git.commit(newVersion);
+                release.git.commit(newVersion);
 
             });
 
@@ -160,8 +160,28 @@ releases = {
                     // Notify the user
                     console.log("Tagged current commit with v" + newVersion);
 
+                    // Push the commit and tags to the remote repo
+                    release.git.push(newVersion);
+
                 });
 
+
+            });
+
+        },
+
+        // Push the commit and tags to the repo
+        push : function(newVersion){
+
+            // Log a blank line and inform the user
+            console.log("");
+            console.log("Pushing new release to remote 'origin'");
+
+            // Perform push of ordinary and tag
+            exec("git push && git push origin v" + newVersion, function(err, stdout, stderr){
+
+                // Log the output to the console
+                console.log(stderr);
 
             });
 
@@ -205,4 +225,4 @@ releases = {
 }
 
 // Expose to app
-module.exports = releases;
+module.exports = release;
