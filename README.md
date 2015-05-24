@@ -8,7 +8,7 @@ Run the following in your console
 $ release <type>
 ```
 
-where the type is equal to one of three:
+where the `type` is equal to one of three:
 
 Type | Result
 ---|---
