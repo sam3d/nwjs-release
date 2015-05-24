@@ -1,6 +1,7 @@
 // Dependencies
 var fs = require('fs');
 var exec = require('child_process').exec;
+var request = require('request');
 
 // Define module
 release = {
@@ -182,6 +183,47 @@ release = {
 
                 // Log the output to the console
                 console.log(stderr);
+
+                // Release on github
+                release.git.release(newVersion);
+
+            });
+
+        },
+
+        // Release on github
+        release : function(newVersion){
+
+            // Get username and repo name from repository
+            exec("git remote -v", function(err, stdout, stderr){
+
+                // Split result
+                var remotes = stdout.split(/[\s\t]+/);
+
+                // Get origin
+                var origin_url = remotes[remotes.indexOf('origin') + 1];
+
+                // Get owner and repo and github token from env
+                var owner = origin_url.split(/[/.]+/)[3];
+                var repo = origin_url.split(/[/.]+/)[4];
+                var token = process.env.GITHUB_TOKEN;
+                var url = "https://api.github.com/repos/" + owner + "/" + repo + "/releases";
+
+                console.log("Creating new release at https://github.com/" + owner + "/" + repo + "/releases/tag/v" + newVersion);
+
+                // Make post request
+                request.post({
+                    url: url,
+                    headers: {"User-Agent": owner, "Authorization": "token " + token},
+                    json: {
+                        "tag_name": "v" + newVersion,
+                        "target_commitish": "master",
+                        "name": "v" + newVersion,
+                        "body": "",
+                        "draft": false,
+                        "prerelease": false
+                    }
+                });
 
             });
 
