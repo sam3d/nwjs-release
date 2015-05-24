@@ -185,7 +185,10 @@ release = {
                 console.log(stderr);
 
                 // Release on github
-                release.git.release(newVersion);
+                console.log("Waiting 5 seconds before releasing");
+                setTimeout(function(){
+                    release.git.release(newVersion);
+                }, 5000);
 
             });
 
