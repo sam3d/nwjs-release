@@ -13,7 +13,16 @@ releases = {
             // Get current version
             releases.version(function(version){
 
-                //
+                // Get current version
+                var patch = parseInt(version.split(".")[2]);
+                var minor = parseInt(version.split(".")[1]);
+                var major = parseInt(version.split(".")[0]);
+
+                // Get new version
+                var newVersion = major + "." + minor + "." + (patch + 1);
+
+                // Notify
+                console.log("Upgrading from " + version + " => " + newVersion);
 
             });
 
@@ -25,7 +34,16 @@ releases = {
             // Get current version
             releases.version(function(version){
 
-                //
+                // Get current version
+                var patch = parseInt(version.split(".")[2]);
+                var minor = parseInt(version.split(".")[1]);
+                var major = parseInt(version.split(".")[0]);
+
+                // Get new version
+                var newVersion = major + "." + (minor + 1) + ".0";
+
+                // Notify
+                console.log("Upgrading from " + version + " => " + newVersion);
 
             });
 
@@ -37,7 +55,16 @@ releases = {
             // Get current version
             releases.version(function(version){
 
-                //
+                // Get current version
+                var patch = parseInt(version.split(".")[2]);
+                var minor = parseInt(version.split(".")[1]);
+                var major = parseInt(version.split(".")[0]);
+
+                // Get new version
+                var newVersion = (major + 1) + ".0.0";
+
+                // Notify
+                console.log("Upgrading from " + version + " => " + newVersion);
 
             });
 
