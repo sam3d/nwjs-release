@@ -133,22 +133,35 @@ releases = {
                 // Write JSON back into file
                 fs.writeFile("package.json", data);
 
-                // Make a git commit
-                exec("git add package.json && git commit -m '" + newVersion + "'", function(err, stdout, stderr){
+                // Commit the changes
+                releases.git.commit(newVersion);
+
+            });
+
+        }
+
+    },
+
+    // Git functions
+    git : {
+
+        // Make a new commit
+        commit : function(newVersion){
+
+            // Add and then commit the current package.json
+            exec("git add package.json && git commit -m '" + newVersion + "'", function(err, stdout, stderr){
+
+                // Notify the user
+                console.log("Commited new version to package.json");
+
+                // Tag the current commit
+                exec("git tag v" + newVersion, function(err, stdout, stderr){
 
                     // Notify the user
-                    console.log("Commited new version to package.json");
-
-                    // Tag the current commit
-                    exec("git tag v" + newVersion, function(err, stdout, stderr){
-
-                        // Notify the user
-                        console.log("Tagged current commit with v" + newVersion);
-
-                    });
-
+                    console.log("Tagged current commit with v" + newVersion);
 
                 });
+
 
             });
 
