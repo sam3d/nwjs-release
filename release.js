@@ -1,5 +1,6 @@
 // Dependencies
 var fs = require('fs');
+var exec = require('child_process').exec;
 
 // Define module
 releases = {
@@ -131,6 +132,23 @@ releases = {
 
                 // Write JSON back into file
                 fs.writeFile("package.json", data);
+
+                // Make a git commit
+                exec("git add package.json && git commit -m '" + newVersion + "'", function(err, stdout, stderr){
+
+                    // Notify the user
+                    console.log("Commited new version to package.json");
+
+                    // Tag the current commit
+                    exec("git tag v" + newVersion, function(err, stdout, stderr){
+
+                        // Notify the user
+                        console.log("Tagged current commit with v" + newVersion);
+
+                    });
+
+
+                });
 
             });
 
