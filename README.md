@@ -1,11 +1,17 @@
 # How to install
-Make sure you have node.js and npm installed, then navigate to any directory of your choice and run `git clone` to clone this repository. Afterwards run
+Make sure you have node.js and npm installed, then navigate to any directory of your choice and run `git clone` to clone this repository. Afterwards run `npm install` to get all of the required packages to run.
+
+```console
+$ npm install
+```
+
+Now you need to make sure you can run it, in order to link it to npm and then make it so it can be run from anywhere, use `npm link`.
 
 ```console
 $ npm link
 ```
 
-And this will make it so that you can run it as a command line application. If you would like to uninstall it, before you delete the directory make sure to run
+If you would like to uninstall it, before you delete the directory make sure to run
 
 ```console
 $ npm unlink
