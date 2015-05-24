@@ -11,7 +11,7 @@ releases = {
         patch : function(){
 
             // Get current version
-            releases.version(function(version){
+            releases.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -21,8 +21,8 @@ releases = {
                 // Get new version
                 var newVersion = major + "." + minor + "." + (patch + 1);
 
-                // Notify
-                console.log("Upgrading from " + version + " => " + newVersion);
+                // Update to new version
+                releases.version.update(newVersion);
 
             });
 
@@ -32,7 +32,7 @@ releases = {
         minor : function(){
 
             // Get current version
-            releases.version(function(version){
+            releases.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -42,8 +42,8 @@ releases = {
                 // Get new version
                 var newVersion = major + "." + (minor + 1) + ".0";
 
-                // Notify
-                console.log("Upgrading from " + version + " => " + newVersion);
+                // Update to new version
+                releases.version.update(newVersion);
 
             });
 
@@ -53,7 +53,7 @@ releases = {
         major : function(){
 
             // Get current version
-            releases.version(function(version){
+            releases.version.read(function(version){
 
                 // Get current version
                 var patch = parseInt(version.split(".")[2]);
@@ -63,8 +63,8 @@ releases = {
                 // Get new version
                 var newVersion = (major + 1) + ".0.0";
 
-                // Notify
-                console.log("Upgrading from " + version + " => " + newVersion);
+                // Update to new version
+                releases.version.update(newVersion);
 
             });
 
@@ -72,29 +72,69 @@ releases = {
 
     },
 
-    // Get the current version number
-    version : function(callback){
+    // All version functions
+    version : {
 
-        // Read the package.json file
-        fs.readFile("package.json", "utf8", function(err, data){
+        // Read the current version number
+        read : function(callback){
 
-            // Throw an error if there was one
-            if (err) {
+            // Read the package.json file
+            fs.readFile("package.json", "utf8", function(err, data){
 
-                // Print error
-                console.log("Could not find 'package.json' in current directory");
-                console.log("Are you sure it exists?");
+                // Throw an error if there was one
+                if (err) {
 
-                // End
-                process.exit(1);
+                    // Print error
+                    console.log("Could not find 'package.json' in current directory");
+                    console.log("Are you sure it exists?");
 
-            }
+                    // End
+                    process.exit(1);
 
-            // Get the version from the file and return it
-            var version = JSON.parse(data).version;
-            callback(version);
+                }
 
-        });
+                // Get the version from the file and return it
+                var version = JSON.parse(data).version;
+                callback(version);
+
+            });
+
+        },
+
+        // Update the version in 'package.json'
+        update : function(newVersion){
+
+            // Read current 'package.json'
+            fs.readFile("package.json", "utf8", function(err, data){
+
+                // Throw an error if there was one
+                if (err) {
+
+                    // Print error
+                    console.log("Could not find 'package.json' in current directory");
+                    console.log("Are you sure it exists?");
+
+                    // End
+                    process.exit(1);
+
+                }
+
+                // Convert data to JSON object
+                var data = JSON.parse(data);
+
+                // Notify the user of the update
+                console.log("Updating from " + data.version + " => " + newVersion);
+
+                // Update version in JSON object and convert back to string
+                data.version = newVersion;
+                var data = JSON.stringify(data, null, "\t");
+
+                // Write JSON back into file
+                fs.writeFile("package.json", data);
+
+            });
+
+        }
 
     },
 
