@@ -1,0 +1,10 @@
+{
+    "name":"release",
+    "version":"0.1.0",
+    "description":"automatic versioning and releasing to github",
+    "author":"Sam Holmes",
+    "preferGlobal":true,
+    "bin":{
+        "release":"index.js"
+    }
+}
