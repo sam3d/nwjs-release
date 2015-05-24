@@ -29,9 +29,9 @@ module.exports = {
     man : function(){
         console.log("");
         console.log("Usage: release <type>");
-        console.log("    'patch' will increment to -.-.x");
-        console.log("    'minor' will increment to -.x.0");
-        console.log("    'major' will increment to x.0.0");
+        console.log("    where type 'patch' will increment to -.-.x");
+        console.log("    where type 'minor' will increment to -.x.0");
+        console.log("    where type 'major' will increment to x.0.0");
         console.log("");
     }
 
