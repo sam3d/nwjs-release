@@ -28,7 +28,7 @@ You'll need to run the commands in the same directory as your node.js `package.j
 Run the following in your console
 
 ```console
-$ release (type)
+$ release type
 ```
 
 where the `type` is equal to one of three:
