@@ -229,7 +229,7 @@ release = {
 
                                 // Atom is not installed, go straight to release
                                 console.log("");
-                                console.log("Atom is not installed");
+                                console.log("Atom is not installed, will not add patch notes");
                                 console.log("Waiting 5 seconds before publishing release");
                                 setTimeout(function(){
                                     release.git.release(newVersion, "");
@@ -249,6 +249,7 @@ release = {
                         // User does not want to enter patch notes
                         // Go straight to release
                         console.log("");
+                        console.log("Will not add patch notes");
                         console.log("Waiting 5 seconds before publishing release");
                         setTimeout(function(){
                             release.git.release(newVersion, "");
