@@ -3,6 +3,7 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var request = require('request');
 var prompt = require('prompt');
+var NwBuilder = require('node-webkit-builder');
 
 // Define module
 release = {
@@ -333,6 +334,13 @@ release = {
                         "draft": false,
                         "prerelease": false
                     }
+                }, function(){
+
+                    // If it should be built, build it
+                    if (release.builds) {
+                        release.build();
+                    }
+
                 });
 
             });
@@ -341,8 +349,30 @@ release = {
 
     },
 
+    // Create node webkit builds
+    build : function(){
+
+        console.log("");
+        console.log("Will now build nwjs application(s)");
+
+        // Instansiate webkit builder
+        var nw = new NwBuilder({
+            files: "./*",
+            version: "0.12.0",
+            platforms: release.builds
+        });
+
+        // Build it
+        nw.build();
+
+    },
+
     // Print the manual
     man : function(){
+
+        if (release.builds){
+            console.log(release.builds.length);
+        }
 
         // Get current version
         fs.readFile("package.json", "utf8", function(err, data){
@@ -364,10 +394,13 @@ release = {
 
             // Print static data
             console.log("");
-            console.log("Usage: release <type>");
+            console.log("Usage: release [type]");
             console.log("    where type 'patch' will increment to -.-.x");
             console.log("    where type 'minor' will increment to -.x.0");
             console.log("    where type 'major' will increment to x.0.0");
+            console.log("");
+            console.log("Optional flags");
+            console.log("    '-b' will build a nwjs app (example: '-b osx32,osx64,win32,win64')");
             console.log("");
 
         });
