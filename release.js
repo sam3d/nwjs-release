@@ -184,8 +184,21 @@ release = {
                 // Log the output to the console
                 console.log(stderr);
 
-                // Release on github
-                release.git.patchNotes(newVersion);
+                // Find out whether ATOM is installed
+                exec("which atom", function(err, stdout, stderr){
+                    if (stdout.split("\n") < 2) {
+                        // Atom is not installed, go straight to publish
+                        console.log("Atom is not installed");
+                        console.log("Waiting 5 seconds before publishing release");
+                        setTimeout(function(){
+                            release.git.release(newVersion, "");
+                        }, 5000);
+                    } else {
+                        // Atom is installed, use patch notes
+                        release.git.patchNotes(newVersion);
+                    }
+                });
+
 
             });
 
