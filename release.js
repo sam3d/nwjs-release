@@ -2,6 +2,7 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var request = require('request');
+var prompt = require('prompt');
 
 // Define module
 release = {
@@ -11,6 +12,10 @@ release = {
 
         // Set up a 'patch' release
         patch : function(){
+
+            // Notify current release
+            console.log("");
+            console.log("Performing patch release");
 
             // Get current version
             release.version.read(function(version){
@@ -33,6 +38,9 @@ release = {
         // Set up a 'minor' release
         minor : function(){
 
+            // Notify current release
+            console.log("Performing minor release");
+
             // Get current version
             release.version.read(function(version){
 
@@ -53,6 +61,9 @@ release = {
 
         // Set up a 'major' release
         major : function(){
+
+            // Notify current release
+            console.log("Performing major release");
 
             // Get current version
             release.version.read(function(version){
@@ -79,6 +90,9 @@ release = {
 
         // Read the current version number
         read : function(callback){
+
+            // Notify of search
+            console.log("Searching for 'package.json' in current directory");
 
             // Read the package.json file
             fs.readFile("package.json", "utf8", function(err, data){
@@ -125,6 +139,7 @@ release = {
                 var data = JSON.parse(data);
 
                 // Notify the user of the update
+                console.log("");
                 console.log("Updating from " + data.version + " => " + newVersion);
 
                 // Update version in JSON object and convert back to string
@@ -134,7 +149,7 @@ release = {
                 // Write JSON back into file
                 fs.writeFile("package.json", data);
 
-                // Commit the changes
+                // Proceed to git commit
                 release.git.commit(newVersion);
 
             });
@@ -153,19 +168,26 @@ release = {
             exec("git add package.json && git commit -m '" + newVersion + "'", function(err, stdout, stderr){
 
                 // Notify the user
-                console.log("Commited new version to package.json");
+                console.log("Commited new version to 'package.json'");
 
-                // Tag the current commit
-                exec("git tag v" + newVersion, function(err, stdout, stderr){
+                // Proceed to git tag
+                release.git.tag(newVersion);
 
-                    // Notify the user
-                    console.log("Tagged current commit with v" + newVersion);
+            });
 
-                    // Push the commit and tags to the remote repo
-                    release.git.push(newVersion);
+        },
 
-                });
+        // Tag the current commit
+        tag : function(newVersion){
 
+            // Tag the current commit
+            exec("git tag v" + newVersion, function(err, stdout, stderr){
+
+                // Notify the user
+                console.log("Tagged current commit with v" + newVersion);
+
+                // Push the commit and tags to the remote repo
+                release.git.push(newVersion);
 
             });
 
@@ -184,21 +206,57 @@ release = {
                 // Log the output to the console
                 console.log(stderr);
 
-                // Find out whether ATOM is installed
-                exec("which atom", function(err, stdout, stderr){
-                    if (stdout.split("\n") < 2) {
-                        // Atom is not installed, go straight to publish
-                        console.log("Atom is not installed");
+                // Prompt the user if they would like to enter patch notes
+                console.log("");
+                console.log("Would you like to enter patch notes?");
+                console.log("(At present you must have Atom installed)");
+
+                prompt.start();
+                prompt.get({
+                    name: "yesno",
+                    message: "Enter patch notes",
+                    validator: /y[es]*|n[o]?/,
+                    warning: "Must respond yes or no",
+                    default: "no"
+                }, function(err, result){
+                    if (/y[es]*/.test(result.yesno)) {
+
+                        // User wants to enter patch notes
+
+                        // Find out whether ATOM is installed
+                        exec("which atom", function(err, stdout, stderr){
+                            if (stdout.split("\n") < 2) {
+
+                                // Atom is not installed, go straight to release
+                                console.log("");
+                                console.log("Atom is not installed");
+                                console.log("Waiting 5 seconds before publishing release");
+                                setTimeout(function(){
+                                    release.git.release(newVersion, "");
+                                }, 5000);
+
+                            } else {
+
+                                // Atom is installed, use patch notes
+                                release.git.patchNotes(newVersion);
+
+                            }
+                        });
+
+
+                    } else {
+
+                        // User does not want to enter patch notes
+                        // Go straight to release
+                        console.log("");
                         console.log("Waiting 5 seconds before publishing release");
                         setTimeout(function(){
                             release.git.release(newVersion, "");
                         }, 5000);
-                    } else {
-                        // Atom is installed, use patch notes
-                        release.git.patchNotes(newVersion);
-                    }
-                });
 
+                    }
+
+                });
 
             });
 
@@ -225,8 +283,14 @@ release = {
                     // Delete the file
                     fs.unlink(".git/PATCH_NOTES.md");
 
-                    // Send patch notes to release function
+                    // Show user logged patch notes
+                    console.log("");
+                    console.log("--------------------------");
                     console.log(data);
+                    console.log("--------------------------");
+                    console.log("");
+
+                    // Send patch notes to release function
                     release.git.release(newVersion, data);
 
                 });

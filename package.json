@@ -21,6 +21,7 @@
     "url": "https://github.com/samholmes1337/release/issues"
   },
   "dependencies": {
+    "prompt": "^0.2.14",
     "request": "^2.55.0"
   }
 }
