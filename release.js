@@ -349,13 +349,13 @@ release = {
 
     },
 
-    // Create node webkit builds
+    // Create nwjs builds
     build : function(){
 
         console.log("");
         console.log("Will now build nwjs application(s)");
 
-        // Instansiate webkit builder
+        // Instansiate nwjs builder
         var nw = new NwBuilder({
             files: "./*",
             version: "0.12.0",
@@ -400,7 +400,7 @@ release = {
             console.log("    where type 'major' will increment to x.0.0");
             console.log("");
             console.log("Optional flags");
-            console.log("    '-b' will build a nwjs app (example: '-b osx32,osx64,win32,win64')");
+            console.log("    '-b' will build a nwjs app (default: osx32,osx64,win32,win64)");
             console.log("");
 
         });

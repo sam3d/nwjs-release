@@ -17,6 +17,11 @@ if (process.argv.indexOf("-b") != -1){
         // Set value of builds to array
         release.builds = builds.split(",");
 
+    } else {
+
+        // If it doesn't, use defaults
+        release.builds = ['win32', 'win64', 'osx32', 'osx64'];
+
     }
 
 }
