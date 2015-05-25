@@ -1,6 +1,6 @@
 {
   "name": "release",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "automatic versioning and releasing to github",
   "author": "Sam Holmes",
   "preferGlobal": true,
