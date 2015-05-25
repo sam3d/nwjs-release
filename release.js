@@ -185,17 +185,46 @@ release = {
                 console.log(stderr);
 
                 // Release on github
-                console.log("Waiting 5 seconds before releasing");
-                setTimeout(function(){
-                    release.git.release(newVersion);
-                }, 5000);
+                release.git.patchNotes(newVersion);
 
             });
 
         },
 
+        // Allow the user to enter patch notes
+        patchNotes : function(newVersion){
+
+            // Create the file
+            var data = "### Features\n* feature\n\n### Bugfixes\n* bugfix\n\n### Removed\n* removed\n";
+            fs.writeFile(".git/PATCH_NOTES.md", data);
+
+            // Open the file for the user
+            exec("atom --wait .git/PATCH_NOTES.md", function(err, stdout, stderr){
+
+                // Once it has been finished get the data
+                fs.readFile(".git/PATCH_NOTES.md", "utf8", function(err, data){
+
+                    // Error handling
+                    if (err) {
+                        throw err;
+                    }
+
+                    // Delete the file
+                    fs.unlink(".git/PATCH_NOTES.md");
+
+                    // Send patch notes to release function
+                    console.log(data);
+                    release.git.release(newVersion, data);
+
+                });
+
+            });
+
+
+        },
+
         // Release on github
-        release : function(newVersion){
+        release : function(newVersion, patchNotes){
 
             // Get username and repo name from repository
             exec("git remote -v", function(err, stdout, stderr){
@@ -222,7 +251,7 @@ release = {
                         "tag_name": "v" + newVersion,
                         "target_commitish": "master",
                         "name": "v" + newVersion,
-                        "body": "",
+                        "body": patchNotes,
                         "draft": false,
                         "prerelease": false
                     }
