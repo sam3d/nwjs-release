@@ -36,11 +36,28 @@ var release = {
                 choices: [
                     {name: newMajor + " (Increment major version)", value: newMajor},
                     {name: newMinor + " (Increment minor version)", value: newMinor},
-                    {name: newPatch + " (Increment patch version)", value: newPatch},
-                    new inquirer.Separator(),
-                    {name: "Exit (Don't release a new version)", value: "exit"}
+                    {name: newPatch + " (Increment patch version)", value: newPatch}
                 ]
-            }
+            },
+            {
+                type: "confirm",
+                name: "prerelease",
+                message: "Is this a prerelease?",
+                default: false
+            },
+            {
+                type: "checkbox",
+                name: "builds",
+                message: "What to build for?",
+                default: ["osx32", "osx64"],
+                choices: [
+                    "osx32",
+                    "osx64",
+                    "win32",
+                    "win64"
+                ]
+            },
+
         ]);
 
     },
