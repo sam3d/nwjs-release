@@ -21,8 +21,8 @@
     "url": "https://github.com/samholmes1337/nwjs-release/issues"
   },
   "dependencies": {
-    "node-webkit-builder": "^1.0.11",
-    "prompt": "^0.2.14",
-    "request": "^2.55.0"
+    "commander": "^2.8.1",
+    "inquirer": "^0.8.5",
+    "publish-release": "^1.0.2"
   }
 }
