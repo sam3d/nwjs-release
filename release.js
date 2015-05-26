@@ -359,6 +359,7 @@ release = {
         var nw = new NwBuilder({
             files: "./*",
             version: "0.12.0",
+            macIcns: "./icon.icns",
             platforms: release.builds
         });
 
