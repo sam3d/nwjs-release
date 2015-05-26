@@ -1,15 +1,15 @@
 {
-  "name": "release",
+  "name": "nwjs-release",
   "version": "0.1.5",
-  "description": "automatic versioning and releasing to github",
+  "description": "automatic versioning and releasing of nwjs projects to github",
   "author": "Sam Holmes",
   "preferGlobal": true,
   "bin": {
-    "release": "index.js"
+    "nwjs-release": "index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/samholmes1337/release.git"
+    "url": "git://github.com/samholmes1337/nwjs-release.git"
   },
   "keywords": [
     "release",
@@ -18,7 +18,7 @@
     "semver"
   ],
   "bugs": {
-    "url": "https://github.com/samholmes1337/release/issues"
+    "url": "https://github.com/samholmes1337/nwjs-release/issues"
   },
   "dependencies": {
     "node-webkit-builder": "^1.0.11",

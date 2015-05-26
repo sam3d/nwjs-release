@@ -20,7 +20,7 @@ if (process.argv.indexOf("-b") != -1){
     } else {
 
         // If it doesn't, use defaults
-        release.builds = ['osx32', 'osx64'];
+        release.builds = ['osx32', 'osx64', 'win32', 'win64'];
 
     }
 
