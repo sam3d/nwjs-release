@@ -3,9 +3,22 @@ var fs = require('fs');
 var inquirer = require('inquirer');
 var ghauth = require('ghauth');
 var exec = require('child_process').exec;
+var publishRelease = require('publish-release');
 
 // Main functions
 var release = {
+
+    // Parameters
+    config : {
+
+        token: null,
+        version: null,
+        prerelease: null,
+        draft: null,
+        owner: null,
+        repo: null
+
+    },
 
     // Initial function start
     init : function(){
@@ -33,7 +46,7 @@ var release = {
             }
 
             // Set the token
-            release.token = data.token;
+            release.config.token = data.token;
 
             // Get the initial version
             release.version.read();
@@ -77,36 +90,52 @@ var release = {
             },
             {
                 type: "confirm",
-                name: "changelog",
-                message: "Would you like to add a changelog?",
-                default: true
-            },
-            {
-                type: "checkbox",
-                name: "builds",
-                message: "What do you want to build for?",
-                default: ["osx32", "osx64"],
-                choices: [
-                    {name: "OS X 32-bit", value: "osx32"},
-                    {name: "OS X 64-bit", value: "osx64"},
-                    {name: "Windows 32-bit", value: "win32"},
-                    {name: "Windows 64-bit", value: "win64"}
-                ]
+                name: "draft",
+                message: "Is this a draft?",
+                default: false
             }
+            // {
+            //     type: "confirm",
+            //     name: "changelog",
+            //     message: "Would you like to add a changelog?",
+            //     default: true
+            // },
+            // {
+            //     type: "checkbox",
+            //     name: "builds",
+            //     message: "What do you want to build for?",
+            //     default: ["osx32", "osx64"],
+            //     choices: [
+            //         {name: "OS X 32-bit", value: "osx32"},
+            //         {name: "OS X 64-bit", value: "osx64"},
+            //         {name: "Windows 32-bit", value: "win32"},
+            //         {name: "Windows 64-bit", value: "win64"}
+            //     ]
+            // }
 
         ], function(answers){
 
+            // Set the parameters
+            release.config.version = answers.version;
+            release.config.prerelease = answers.prerelease;
+            release.config.draft = answers.draft;
+
             // Bump the version
-            release.version.bump(answers.version, function(){
+            release.version.bump(function(){
 
                 // Make a git commit
-                release.git.commit(answers.version, function(){
+                release.git.commit(function(){
 
                     // Make a git tag
-                    release.git.tag(answers.version, function(){
+                    release.git.tag(function(){
 
                         // Push to remote
-                        release.git.push(answers.version);
+                        release.git.push(function(){
+
+                            // Release on github
+                            release.publish();
+
+                        });
 
                     });
 
@@ -160,7 +189,7 @@ var release = {
         },
 
         // Bump the current version
-        bump : function(version, next){
+        bump : function(next){
 
             // Read current 'package.json'
             fs.readFile("package.json", "utf8", function(err, data){
@@ -182,13 +211,13 @@ var release = {
 
                 // Initial notification
                 console.log("");
-                console.log("Updating from v" + data.version + " => " + version);
+                console.log("Updating from v" + data.version + " => " + release.config.version);
 
                 // Notify the user of the update
-                console.log("---> Updated 'package.json': v" + version);
+                console.log("---> Updated 'package.json': v" + release.config.version);
 
                 // Update version in JSON object and convert back to string
-                data.version = version;
+                data.version = release.config.version;
                 var data = JSON.stringify(data, null, "  ");
 
                 // Write JSON back into file
@@ -207,17 +236,17 @@ var release = {
     git : {
 
         // Make a commit
-        commit : function(version, next){
+        commit : function(next){
 
             // Perform add and commit function
-            exec("git add package.json && git commit -m '" + version + "'", function(err, stdout, stderr){
+            exec("git add package.json && git commit -m '" + release.config.version + "'", function(err, stdout, stderr){
 
                 // If error, throw
                 if (err)
                     throw err;
 
                 // Notify the user
-                console.log("---> Created new commit: " + version);
+                console.log("---> Created new commit: " + release.config.version);
 
                 // Callback
                 next();
@@ -227,17 +256,17 @@ var release = {
         },
 
         // Make a tag on current commit
-        tag : function(version, next){
+        tag : function(next){
 
             // Perform tag
-            exec("git tag v" + version, function(err, stdout, stderr){
+            exec("git tag v" + release.config.version, function(err, stdout, stderr){
 
                 // If error, throw
                 if (err)
                     throw err;
 
                 // Notify the user
-                console.log("---> Created new tag: v" + version);
+                console.log("---> Created new tag: v" + release.config.version);
 
                 // Callback
                 next();
@@ -247,22 +276,71 @@ var release = {
         },
 
         // Push tag and commit to remote
-        push : function(version){
+        push : function(next){
 
             // Notify user
             console.log("");
             console.log("Pushing commit and tag to master/origin");
-            console.log("---> Pushing to remote: v" + version);
+            console.log("---> Pushing to remote: v" + release.config.version);
 
             // Perform push of current commit and tag
-            exec("git push origin master && git push origin master v" + version, function(err, stdout, stderr){
+            exec("git push origin master && git push origin master v" + release.config.version, function(err, stdout, stderr){
 
                 // Notify user
-                console.log("---> Pushed to remote: v" + version);
+                console.log("---> Pushed to remote: v" + release.config.version);
+
+                // Callback
+                next();
 
             });
 
         }
+
+    },
+
+    // Publish release to github
+    publish : function(){
+
+        // Notify user
+        console.log("");
+        console.log("Publishing release on Github");
+
+        // Get username and repo name from repository
+        exec("git remote -v", function(err, stdout, stderr){
+
+            // Split result
+            var remotes = stdout.split(/[\s\t]+/);
+
+            // Get origin
+            var origin_url = remotes[remotes.indexOf('origin') + 1];
+
+            // Get owner and repo
+            release.config.owner = origin_url.split(/[/.]+/)[3];
+            release.config.repo = origin_url.split(/[/.]+/)[4];
+
+            // Publish the release
+            publishRelease({
+
+                token: release.config.token,
+                owner: release.config.owner,
+                repo: release.config.repo,
+                tag: "v" + release.config.version,
+                name: "v" + release.config.version,
+                draft: release.config.draft,
+                prerelease: release.config.prerelease
+
+            }, function(err, data){
+
+                // If error, throw
+                if (err)
+                    throw err;
+
+                // Notify user
+                console.log("---> Release published: v" + release.config.version);
+
+            });
+
+        });
 
     }
 
