@@ -2,6 +2,7 @@
 var fs = require('fs');
 var inquirer = require('inquirer');
 var ghauth = require('ghauth');
+var exec = require('child_process').exec;
 
 // Main functions
 var release = {
@@ -95,7 +96,23 @@ var release = {
 
         ], function(answers){
 
+            // Bump the version
+            release.version.bump(answers.version, function(){
 
+                // Make a git commit
+                release.git.commit(answers.version, function(){
+
+                    // Make a git tag
+                    release.git.tag(answers.version, function(){
+
+                        // Push to remote
+                        release.git.push(answers.version);
+
+                    });
+
+                });
+
+            });
 
         });
 
@@ -143,9 +160,107 @@ var release = {
         },
 
         // Bump the current version
-        bump : function(version){
+        bump : function(version, next){
 
+            // Read current 'package.json'
+            fs.readFile("package.json", "utf8", function(err, data){
 
+                // Throw an error if there was one
+                if (err) {
+
+                    // Print error
+                    console.log("Could not find 'package.json' in current directory");
+                    console.log("Are you sure it exists?");
+
+                    // End
+                    process.exit(1);
+
+                }
+
+                // Convert data to JSON object
+                var data = JSON.parse(data);
+
+                // Initial notification
+                console.log("");
+                console.log("Updating from v" + data.version + " => " + version);
+
+                // Notify the user of the update
+                console.log("---> Updated 'package.json': v" + version);
+
+                // Update version in JSON object and convert back to string
+                data.version = version;
+                var data = JSON.stringify(data, null, "  ");
+
+                // Write JSON back into file
+                fs.writeFile("package.json", data);
+
+                // Next callback
+                next();
+
+            });
+
+        }
+
+    },
+
+    // All git functions
+    git : {
+
+        // Make a commit
+        commit : function(version, next){
+
+            // Perform add and commit function
+            exec("git add package.json && git commit -m '" + version + "'", function(err, stdout, stderr){
+
+                // If error, throw
+                if (err)
+                    throw err;
+
+                // Notify the user
+                console.log("---> Created new commit: " + version);
+
+                // Callback
+                next();
+
+            });
+
+        },
+
+        // Make a tag on current commit
+        tag : function(version, next){
+
+            // Perform tag
+            exec("git tag v" + version, function(err, stdout, stderr){
+
+                // If error, throw
+                if (err)
+                    throw err;
+
+                // Notify the user
+                console.log("---> Created new tag: v" + version);
+
+                // Callback
+                next();
+
+            });
+
+        },
+
+        // Push tag and commit to remote
+        push : function(version){
+
+            // Notify user
+            console.log("");
+            console.log("Pushing commit and tag to master/origin");
+            console.log("---> Pushing to remote: v" + version);
+
+            // Perform push of current commit and tag
+            exec("git push origin master && git push origin master v" + version, function(err, stdout, stderr){
+
+                // Notify user
+                console.log("---> Pushed to remote: v" + version);
+
+            });
 
         }
 
