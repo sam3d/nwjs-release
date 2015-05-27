@@ -1,6 +1,6 @@
 {
   "name": "nwjs-release",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "automatic versioning and releasing of nwjs projects to github",
   "author": "Sam Holmes",
   "preferGlobal": true,
