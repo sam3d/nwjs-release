@@ -304,43 +304,49 @@ var release = {
         // Notify user
         console.log("");
         console.log("Publishing release on Github");
+        console.log("---> Waiting 5 seconds");
 
-        // Get username and repo name from repository
-        exec("git remote -v", function(err, stdout, stderr){
+        // Wait 5 seconds
+        setTimeout(function(){
 
-            // Split result
-            var remotes = stdout.split(/[\s\t]+/);
+            // Get username and repo name from repository
+            exec("git remote -v", function(err, stdout, stderr){
 
-            // Get origin
-            var origin_url = remotes[remotes.indexOf('origin') + 1];
+                // Split result
+                var remotes = stdout.split(/[\s\t]+/);
 
-            // Get owner and repo
-            release.config.owner = origin_url.split(/[/.]+/)[3];
-            release.config.repo = origin_url.split(/[/.]+/)[4];
+                // Get origin
+                var origin_url = remotes[remotes.indexOf('origin') + 1];
 
-            // Publish the release
-            publishRelease({
+                // Get owner and repo
+                release.config.owner = origin_url.split(/[/.]+/)[3];
+                release.config.repo = origin_url.split(/[/.]+/)[4];
 
-                token: release.config.token,
-                owner: release.config.owner,
-                repo: release.config.repo,
-                tag: "v" + release.config.version,
-                name: "v" + release.config.version,
-                draft: release.config.draft,
-                prerelease: release.config.prerelease
+                // Publish the release
+                publishRelease({
 
-            }, function(err, data){
+                    token: release.config.token,
+                    owner: release.config.owner,
+                    repo: release.config.repo,
+                    tag: "v" + release.config.version,
+                    name: "v" + release.config.version,
+                    draft: release.config.draft,
+                    prerelease: release.config.prerelease
 
-                // If error, throw
-                if (err)
-                    throw err;
+                }, function(err, data){
 
-                // Notify user
-                console.log("---> Release published: v" + release.config.version);
+                    // If error, throw
+                    if (err)
+                        throw err;
+
+                    // Notify user
+                    console.log("---> Release published: v" + release.config.version);
+
+                });
 
             });
 
-        });
+        }, 5000);
 
     }
 
