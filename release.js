@@ -4,6 +4,7 @@ var inquirer = require('inquirer');
 var ghauth = require('ghauth');
 var exec = require('child_process').exec;
 var publishRelease = require('publish-release');
+var editor = require('editor');
 
 // Main functions
 var release = {
@@ -16,7 +17,8 @@ var release = {
         prerelease: null,
         draft: null,
         owner: null,
-        repo: null
+        repo: null,
+        notes: null
 
     },
 
@@ -93,13 +95,13 @@ var release = {
                 name: "draft",
                 message: "Is this a draft?",
                 default: false
+            },
+            {
+                type: "confirm",
+                name: "notes",
+                message: "Would you like to add release notes?",
+                default: true
             }
-            // {
-            //     type: "confirm",
-            //     name: "changelog",
-            //     message: "Would you like to add a changelog?",
-            //     default: true
-            // },
             // {
             //     type: "checkbox",
             //     name: "builds",
@@ -120,20 +122,25 @@ var release = {
             release.config.prerelease = answers.prerelease;
             release.config.draft = answers.draft;
 
-            // Bump the version
-            release.version.bump(function(){
+            // Add release notes
+            release.notes(answers.notes, function(){
 
-                // Make a git commit
-                release.git.commit(function(){
+                // Bump the version
+                release.version.bump(function(){
 
-                    // Make a git tag
-                    release.git.tag(function(){
+                    // Make a git commit
+                    release.git.commit(function(){
 
-                        // Push to remote
-                        release.git.push(function(){
+                        // Make a git tag
+                        release.git.tag(function(){
 
-                            // Release on github
-                            release.publish();
+                            // Push to remote
+                            release.git.push(function(){
+
+                                // Release on github
+                                release.publish();
+
+                            });
 
                         });
 
@@ -232,6 +239,48 @@ var release = {
 
     },
 
+    // Create new release notes
+    notes : function(bool, next){
+
+        // Evaluate
+        if (bool) {
+
+            // User wants to enter release notes
+            // Create basic release notes file
+            fs.writeFile(".git/RELEASE_NOTES.md", "### Release notes");
+
+            // Allow them to edit the file using $EDITOR
+            editor(".git/RELEASE_NOTES.md", function(code, sig){
+
+                // Read file
+                fs.readFile(".git/RELEASE_NOTES.md", "utf8", function(err, data){
+
+                    // If error, throw
+                    if (err)
+                        throw err;
+
+                    // Add data to variable
+                    release.config.notes = data;
+
+                    // Delete file
+                    fs.unlink(".git/RELEASE_NOTES.md");
+
+                    // Next
+                    next();
+
+                });
+
+            });
+
+        } else {
+
+            // User does not want to enter release notes
+            next();
+
+        }
+
+    },
+
     // All git functions
     git : {
 
@@ -304,7 +353,7 @@ var release = {
         // Notify user
         console.log("");
         console.log("Publishing release on Github");
-        console.log("---> Waiting 5 seconds");
+        console.log("---> Waiting for 5 seconds");
 
         // Wait 5 seconds
         setTimeout(function(){
@@ -331,6 +380,7 @@ var release = {
                     tag: "v" + release.config.version,
                     name: "v" + release.config.version,
                     draft: release.config.draft,
+                    notes: release.config.notes,
                     prerelease: release.config.prerelease
 
                 }, function(err, data){
