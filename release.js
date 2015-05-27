@@ -1,6 +1,7 @@
 // Dependencies
 var fs = require('fs');
 var inquirer = require('inquirer');
+var ghauth = require('ghauth');
 
 // Main functions
 var release = {
@@ -8,8 +9,35 @@ var release = {
     // Initial function start
     init : function(){
 
-        // Start version check
-        release.version.read();
+        // Start github auth
+        release.github();
+
+    },
+
+    // Authenticate with github
+    github : function() {
+
+        // Authentication
+        ghauth({
+            configName: "nwjs-release",
+            scopes: ['repo', 'public_repo'],
+            note: "Allows nwjs-release to publish and upload releases",
+            userAgent: "nwjs-release"
+        }, function(err, data){
+
+            // If there is an error, show the user
+            if (err){
+                console.log(err.data.message);
+                process.exit(1);
+            }
+
+            // Set the token
+            release.token = data.token;
+
+            // Get the initial version
+            release.version.read();
+
+        });
 
     },
 
@@ -26,7 +54,8 @@ var release = {
         var newMinor = major + "." + (minor + 1) + ".0";
         var newPatch = major + "." + minor + "." + (patch + 1);
 
-        // Prompt the user for which version they would like to bump to
+
+        // Prompt the user for all paramaters
         inquirer.prompt([
             {
                 type: "list",
@@ -62,19 +91,13 @@ var release = {
                     {name: "Windows 32-bit", value: "win32"},
                     {name: "Windows 64-bit", value: "win64"}
                 ]
-            },
-            {
-                type: "input",
-                name: "username",
-                message: "GitHub Username"
-            },
-            {
-                type: "password",
-                name: "password",
-                message: "GitHub Password"
             }
 
-        ]);
+        ], function(answers){
+
+
+
+        });
 
     },
 
