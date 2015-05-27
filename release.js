@@ -6,6 +6,7 @@ var exec = require('child_process').exec;
 var publishRelease = require('publish-release');
 var editor = require('editor');
 var NwBuilder = require('node-webkit-builder');
+var archiver = require('archiver');
 
 // Main functions
 var release = {
@@ -120,9 +121,7 @@ var release = {
                 default: ["osx32", "osx64"],
                 choices: [
                     {name: "OS X 32-bit", value: "osx32"},
-                    {name: "OS X 64-bit", value: "osx64"},
-                    {name: "Windows 32-bit", value: "win32"},
-                    {name: "Windows 64-bit", value: "win64"}
+                    {name: "OS X 64-bit", value: "osx64"}
                 ]
             }
 
@@ -400,10 +399,39 @@ var release = {
                     // Notify user of completed builds
                     console.log("---> All builds completed");
 
+                    // Notify of zipping
+                    console.log("---> Zipping files for upload");
+
+                    // Zip all build files
+                    for (var i = 0; i < release.config.builds.length; i++) {
+
+                        var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i] + "/" + release.config.name + ".app";
+                        var newDir = "./build/" + release.config.name + "/" + release.config.builds[i] + ".zip";
+
+                        var output = fs.createWriteStream(newDir);
+                        var archive = archiver('zip');
+
+                        archive.pipe(output);
+
+                        archive.on('error', function(err){
+                            throw err;
+                        });
+
+                        archive.bulk([
+                            { expand: true, cwd: oldDir, src: ['**'], dest: oldDir}
+                        ]);
+
+                        archive.finalize();
+
+                    }
+
                     // Proceed to next
                     next();
 
+
                 }).catch(function(err){
+
+                    console.log(err);
 
                     // There was an error completing the builds
                     console.log("---> There was an error completing builds");
@@ -457,29 +485,77 @@ var release = {
                 release.config.owner = origin_url.split(/[/.]+/)[3];
                 release.config.repo = origin_url.split(/[/.]+/)[4];
 
-                // Publish the release
-                publishRelease({
+                // If building
+                if (release.config.createBuilds) {
 
-                    token: release.config.token,
-                    owner: release.config.owner,
-                    repo: release.config.repo,
-                    tag: "v" + release.config.version,
-                    name: "v" + release.config.version,
-                    draft: release.config.draft,
-                    notes: release.config.notes,
-                    prerelease: release.config.prerelease
+                    var buildDirs = new Array();
 
-                }, function(err, data){
+                    // Get directory of builds
+                    for (var i = 0; i < release.config.builds.length; i++) {
 
-                    // If error, throw
-                    if (err)
-                        throw err;
+                        var dir = process.cwd() + "/build/" + release.config.name + "/" + release.config.builds[i] + ".zip";
+                        buildDirs.push(dir);
 
-                    // Notify user
-                    console.log("---> Release published: v" + release.config.version);
-                    console.log("");
+                    }
 
-                });
+                    // Tell the user to wait
+                    console.log("---> Uploading assets (may take a while)");
+
+                    // Publish the release
+                    publishRelease({
+
+                        token: release.config.token,
+                        owner: release.config.owner,
+                        repo: release.config.repo,
+                        tag: "v" + release.config.version,
+                        name: "v" + release.config.version,
+                        draft: release.config.draft,
+                        notes: release.config.notes,
+                        prerelease: release.config.prerelease,
+                        assets: buildDirs
+
+                    }, function(err, data){
+
+                        // If error, throw
+                        if (err)
+                            throw err;
+
+                        // Notify user
+                        console.log("---> Assets uploaded");
+                        console.log("---> Release published: v" + release.config.version);
+                        console.log("");
+
+                    });
+
+                } else {
+
+                    // Publish the release
+                    publishRelease({
+
+                        token: release.config.token,
+                        owner: release.config.owner,
+                        repo: release.config.repo,
+                        tag: "v" + release.config.version,
+                        name: "v" + release.config.version,
+                        draft: release.config.draft,
+                        notes: release.config.notes,
+                        prerelease: release.config.prerelease
+
+                    }, function(err, data){
+
+                        // If error, throw
+                        if (err)
+                            throw err;
+
+                        console.log(data);
+
+                        // Notify user
+                        console.log("---> Release published: v" + release.config.version);
+                        console.log("");
+
+                    });
+
+                }
 
             });
 

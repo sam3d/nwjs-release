@@ -21,6 +21,7 @@
     "url": "https://github.com/samholmes1337/nwjs-release/issues"
   },
   "dependencies": {
+    "archiver": "^0.14.4",
     "commander": "^2.8.1",
     "editor": "^1.0.0",
     "ghauth": "^3.0.0",
