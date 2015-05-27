@@ -5,6 +5,7 @@ var ghauth = require('ghauth');
 var exec = require('child_process').exec;
 var publishRelease = require('publish-release');
 var editor = require('editor');
+var NwBuilder = require('node-webkit-builder');
 
 // Main functions
 var release = {
@@ -12,13 +13,16 @@ var release = {
     // Parameters
     config : {
 
+        name: null,
         token: null,
         version: null,
         prerelease: null,
         draft: null,
         owner: null,
         repo: null,
-        notes: null
+        notes: null,
+        createBuilds: null,
+        builds: null
 
     },
 
@@ -101,19 +105,26 @@ var release = {
                 name: "notes",
                 message: "Would you like to add release notes?",
                 default: true
+            },
+            {
+                type: "confirm",
+                name: "createBuilds",
+                message: "Create nwjs builds?",
+                default: true
+            },
+            {
+                type: "checkbox",
+                name: "builds",
+                message: "What platforms to build for?",
+                when: function(answers){ return answers.createBuilds; },
+                default: ["osx32", "osx64"],
+                choices: [
+                    {name: "OS X 32-bit", value: "osx32"},
+                    {name: "OS X 64-bit", value: "osx64"},
+                    {name: "Windows 32-bit", value: "win32"},
+                    {name: "Windows 64-bit", value: "win64"}
+                ]
             }
-            // {
-            //     type: "checkbox",
-            //     name: "builds",
-            //     message: "What do you want to build for?",
-            //     default: ["osx32", "osx64"],
-            //     choices: [
-            //         {name: "OS X 32-bit", value: "osx32"},
-            //         {name: "OS X 64-bit", value: "osx64"},
-            //         {name: "Windows 32-bit", value: "win32"},
-            //         {name: "Windows 64-bit", value: "win64"}
-            //     ]
-            // }
 
         ], function(answers){
 
@@ -121,6 +132,8 @@ var release = {
             release.config.version = answers.version;
             release.config.prerelease = answers.prerelease;
             release.config.draft = answers.draft;
+            release.config.createBuilds = answers.createBuilds;
+            release.config.builds = answers.builds;
 
             // Add release notes
             release.notes(answers.notes, function(){
@@ -137,8 +150,13 @@ var release = {
                             // Push to remote
                             release.git.push(function(){
 
-                                // Release on github
-                                release.publish();
+                                // Build for nwjs
+                                release.build(function(){
+
+                                    // Release on github
+                                    release.publish();
+
+                                });
 
                             });
 
@@ -222,6 +240,9 @@ var release = {
 
                 // Notify the user of the update
                 console.log("---> Updated 'package.json': v" + release.config.version);
+
+                // Add variable(s)
+                release.config.name = data.name;
 
                 // Update version in JSON object and convert back to string
                 data.version = release.config.version;
@@ -347,6 +368,71 @@ var release = {
 
     },
 
+    // Create nwjs builds
+    build : function(next){
+
+        // Check whether to create builds or not
+        if (release.config.createBuilds){
+
+            // Notify the user
+            console.log("");
+            console.log("Creating nwjs builds");
+
+            // User wants to create builds
+            // Make sure array is not empty
+            if (release.config.builds.length > 0) {
+
+                // There are builds specified!
+
+                // Prepare builds
+                var nw = new NwBuilder({
+                    files: "./*",
+                    version: "0.12.2",
+                    platforms: release.config.builds
+                });
+
+                // Notify user of download
+                console.log("---> Downloading assets");
+
+                // Build
+                nw.build().then(function(){
+
+                    // Notify user of completed builds
+                    console.log("---> All builds completed");
+
+                    // Proceed to next
+                    next();
+
+                }).catch(function(err){
+
+                    // There was an error completing the builds
+                    console.log("---> There was an error completing builds");
+                    console.log("---> Continuing release without them");
+
+                    release.config.releaseBuilds = false;
+                    next();
+
+                });
+
+
+
+            } else {
+
+                // Array is empty, notify user and continue
+                console.log("---> No builds specified");
+                next();
+
+            }
+
+        } else {
+
+            // User did not want to create builds
+            next();
+
+        }
+
+    },
+
     // Publish release to github
     publish : function(){
 
@@ -391,6 +477,7 @@ var release = {
 
                     // Notify user
                     console.log("---> Release published: v" + release.config.version);
+                    console.log("");
 
                 });
 
