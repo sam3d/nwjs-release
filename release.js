@@ -46,17 +46,33 @@ var release = {
                 default: false
             },
             {
+                type: "confirm",
+                name: "changelog",
+                message: "Would you like to add a changelog?",
+                default: true
+            },
+            {
                 type: "checkbox",
                 name: "builds",
-                message: "What to build for?",
+                message: "What do you want to build for?",
                 default: ["osx32", "osx64"],
                 choices: [
-                    "osx32",
-                    "osx64",
-                    "win32",
-                    "win64"
+                    {name: "OS X 32-bit", value: "osx32"},
+                    {name: "OS X 64-bit", value: "osx64"},
+                    {name: "Windows 32-bit", value: "win32"},
+                    {name: "Windows 64-bit", value: "win64"}
                 ]
             },
+            {
+                type: "input",
+                name: "username",
+                message: "GitHub Username"
+            },
+            {
+                type: "password",
+                name: "password",
+                message: "GitHub Password"
+            }
 
         ]);
 
