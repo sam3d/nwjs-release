@@ -411,7 +411,7 @@ var release = {
                     for (var i = 0; i < release.config.builds.length; i++) {
 
                         var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
-                        var newDir = "./build/" + release.config.name + "/" + release.config.builds[i] + "-" + release.config.version + ".zip";
+                        var newDir = "./build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
 
                         var output = fs.createWriteStream(newDir);
                         var archive = archiver('zip');
@@ -498,7 +498,7 @@ var release = {
                     // Get directory of builds
                     for (var i = 0; i < release.config.builds.length; i++) {
 
-                        var dir = process.cwd() + "/build/" + release.config.name + "/" + release.config.builds[i] + "-" + release.config.version + ".zip";
+                        var dir = process.cwd() + "/build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
                         buildDirs.push(dir);
 
                     }
