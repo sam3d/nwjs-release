@@ -15,7 +15,9 @@
     "release",
     "git",
     "version",
-    "semver"
+    "semver",
+    "nwjs",
+    "node-webkit"
   ],
   "bugs": {
     "url": "https://github.com/samholmes1337/nwjs-release/issues"
