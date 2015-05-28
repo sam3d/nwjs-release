@@ -1,5 +1,6 @@
 // Dependencies
 var fs = require('fs');
+var os = require('os');
 var inquirer = require('inquirer');
 var ghauth = require('ghauth');
 var exec = require('child_process').exec;
@@ -7,7 +8,7 @@ var publishRelease = require('publish-release');
 var editor = require('editor');
 var NwBuilder = require('node-webkit-builder');
 var archiver = require('archiver');
-var rimraf = require('rimraf')
+var rimraf = require('rimraf');
 
 // Main functions
 var release = {
@@ -396,8 +397,13 @@ var release = {
                     if (err == null){
 
                         // Mac icon exists
-                        console.log("---> Found OS X icon");
+                        console.log("---> Found OS X icon: mac.icns");
                         macIcns = "mac.icns";
+
+                        // We don't have a build function here
+                        // because we still need to make sure
+                        // there is a windows icon first, if not
+                        // then we just build the OS X icon anyway
 
                     }
 
@@ -405,74 +411,113 @@ var release = {
                     fs.stat("win.ico", function(err, stat){
                         if (err == null){
 
-                            // Windows icon exists
-                            console.log("---> Will not use Windows icon (temporarily disabled)");
-                            winIco = /*"win.ico"*/false; // Temporarily disabled
+                            // Check OS
+                            if (os.type() == "Windows_NT") {
 
-                        }
+                                // Is currently windows and windows icon exists
+                                console.log("---> Found Windows icon: win.ico");
+                                winIco = "win.ico";
+                                build(); // Proceed to build
 
-                        // Prepare builds
-                        var nw = new NwBuilder({
-                            files: "./*",
-                            version: "0.12.2",
-                            platforms: release.config.builds,
-                            macIcns: macIcns,
-                            winIco: winIco
-                        });
+                            } else {
 
-                        // Notify user of download
-                        console.log("---> Downloading assets");
+                                // If not windows
+                                // Check to make sure wine installed
+                                exec("which wine", function(err, stdout, stderr){
+                                    if (stdout.split("\n") < 1) {
 
-                        // Build
-                        nw.build().then(function(){
+                                        // Wine is not installed, alert user
+                                        console.log("---> Cannot use Windows icon: win.ico");
+                                        console.log("     Wine must be installed");
+                                        build(); // Proceed to build
 
-                            // Notify user of completed builds
-                            console.log("---> All builds completed");
+                                    } else {
 
-                            // Notify of zipping
-                            console.log("---> Zipping files for upload");
+                                        // Wine is installed, use it
+                                        console.log("---> Found Windows icon: win.ico");
+                                        winIco = "win.ico";
+                                        build(); // Proceed to build
 
-                            // Zip all build files
-                            for (var i = 0; i < release.config.builds.length; i++) {
-
-                                var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
-                                var newDir = "./build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
-
-                                var output = fs.createWriteStream(newDir);
-                                var archive = archiver('zip');
-
-                                archive.pipe(output);
-
-                                archive.on('error', function(err){
-                                    throw err;
+                                    }
                                 });
-
-                                archive.bulk([
-                                    { expand: true, cwd: oldDir, src: ['**/*'] }
-                                ]);
-
-                                archive.finalize();
 
                             }
 
-                            // Proceed to next
-                            next();
+                        } else {
 
+                            // No windows icon found, proceed to build
+                            build();
 
-                        }).catch(function(err){
+                        }
 
-                            console.log(err);
-
-                            // There was an error completing the builds
-                            console.log("---> There was an error completing builds");
-                            console.log("---> Continuing release without them");
-
-                            release.config.releaseBuilds = false;
-                            next();
-
-                        });
                     });
                 });
+
+                // Actually perform the build
+                function build(){
+
+                    // Prepare builds
+                    var nw = new NwBuilder({
+                        files: "./*",
+                        version: "0.12.2",
+                        platforms: release.config.builds,
+                        macIcns: macIcns,
+                        winIco: winIco
+                    });
+
+                    // Notify user of download
+                    console.log("---> Downloading assets");
+
+                    // Build
+                    nw.build().then(function(){
+
+                        // Notify user of completed builds
+                        console.log("---> All builds completed");
+
+                        // Notify of zipping
+                        console.log("---> Zipping files for upload");
+
+                        // Zip all build files
+                        for (var i = 0; i < release.config.builds.length; i++) {
+
+                            var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
+                            var newDir = "./build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
+
+                            var output = fs.createWriteStream(newDir);
+                            var archive = archiver('zip');
+
+                            archive.pipe(output);
+
+                            archive.on('error', function(err){
+                                throw err;
+                            });
+
+                            archive.bulk([
+                                { expand: true, cwd: oldDir, src: ['**/*'] }
+                            ]);
+
+                            archive.finalize();
+
+                        }
+
+                        // Proceed to next
+                        next();
+
+
+                    }).catch(function(err){
+
+                        console.log(err);
+
+                        // There was an error completing the builds
+                        console.log("---> There was an error completing builds");
+                        console.log("---> Continuing release without them");
+
+                        release.config.releaseBuilds = false;
+                        next();
+
+                    });
+
+                }
 
             } else {
 
