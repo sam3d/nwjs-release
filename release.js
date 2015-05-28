@@ -124,7 +124,9 @@ var release = {
                     {name: "OS X 32-bit", value: "osx32"},
                     {name: "OS X 64-bit", value: "osx64"},
                     {name: "Windows 32-bit", value: "win32"},
-                    {name: "Windows 64-bit", value: "win64"}
+                    {name: "Windows 64-bit", value: "win64"},
+                    {name: "Linux 32-bit", value: "linux32"},
+                    {name: "Linux 64-bit", value: "linux64"}
                 ]
             }
 
