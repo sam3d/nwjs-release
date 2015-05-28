@@ -34,4 +34,6 @@ You'll be presented with a wizard that'll guide you through the process. Current
     * If so, you'll get the option to choose what builds you want to create for out of the following `win32,win64,osx32,osx64,linux32,linux64`
 
 ## Add icon(s)
-You can also include icons for OS X (Windows coming soon) to be built into compiled nwjs applications. Place a `mac.icns` in the root directory of your project folder in order to use it.
+You can also include icons for OS X and Windows to be built into compiled nwjs applications. Place a `mac.icns` and/or a `win.ico` in the root directory of your project folder in order to use them.
+
+> You must have Wine installed on OS X or Linux in order to be able to compile them into the .exe
