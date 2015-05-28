@@ -405,6 +405,7 @@ var release = {
                     // Zip all build files
                     for (var i = 0; i < release.config.builds.length; i++) {
 
+                        var basicDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
                         var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i] + "/" + release.config.name + ".app";
                         var newDir = "./build/" + release.config.name + "/" + release.config.builds[i] + ".zip";
 
@@ -418,7 +419,7 @@ var release = {
                         });
 
                         archive.bulk([
-                            { expand: true, cwd: oldDir, src: ['**'], dest: oldDir}
+                            { expand: true, cwd: basicDir, src: ['**/*'] }
                         ]);
 
                         archive.finalize();
