@@ -29,6 +29,7 @@
     "ghauth": "^3.0.0",
     "inquirer": "^0.8.5",
     "node-webkit-builder": "^1.0.11",
-    "publish-release": "^1.0.2"
+    "publish-release": "^1.0.2",
+    "rimraf": "^2.3.4"
   }
 }

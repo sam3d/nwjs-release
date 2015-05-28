@@ -7,6 +7,7 @@ var publishRelease = require('publish-release');
 var editor = require('editor');
 var NwBuilder = require('node-webkit-builder');
 var archiver = require('archiver');
+var rimraf = require('rimraf')
 
 // Main functions
 var release = {
@@ -525,7 +526,16 @@ var release = {
                         // Notify user
                         console.log("---> Assets uploaded");
                         console.log("---> Release published: v" + release.config.version);
-                        console.log("");
+
+                        // Delete old cache files
+                        rimraf("./build", function(){
+                            rimraf("./cache", function(){
+                                console.log("---> Removed build and cache directories");
+                                console.log("");
+                            });
+                        });
+
+
 
                     });
 
