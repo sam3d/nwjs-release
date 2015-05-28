@@ -105,13 +105,13 @@ var release = {
                 type: "confirm",
                 name: "notes",
                 message: "Would you like to add release notes?",
-                default: true
+                default: false
             },
             {
                 type: "confirm",
                 name: "createBuilds",
                 message: "Create nwjs builds?",
-                default: true
+                default: false
             },
             {
                 type: "checkbox",
