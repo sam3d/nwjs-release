@@ -547,8 +547,6 @@ var release = {
                         if (err)
                             throw err;
 
-                        console.log(data);
-
                         // Notify user
                         console.log("---> Release published: v" + release.config.version);
                         console.log("");
