@@ -1,6 +1,8 @@
 # nwjs-release
 Automatically build and release your node-webkit (nwjs) builds to github.
 
+[![NPM](https://nodei.co/npm/nwjs-release.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/nwjs-release/)
+
 ## How to install
 You can use npm to install the command globally
 
