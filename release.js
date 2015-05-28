@@ -121,7 +121,9 @@ var release = {
                 default: ["osx32", "osx64"],
                 choices: [
                     {name: "OS X 32-bit", value: "osx32"},
-                    {name: "OS X 64-bit", value: "osx64"}
+                    {name: "OS X 64-bit", value: "osx64"},
+                    {name: "Windows 32-bit", value: "win32"},
+                    {name: "Windows 64-bit", value: "win64"}
                 ]
             }
 
@@ -405,8 +407,7 @@ var release = {
                     // Zip all build files
                     for (var i = 0; i < release.config.builds.length; i++) {
 
-                        var basicDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
-                        var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i] + "/" + release.config.name + ".app";
+                        var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
                         var newDir = "./build/" + release.config.name + "/" + release.config.builds[i] + ".zip";
 
                         var output = fs.createWriteStream(newDir);
@@ -419,7 +420,7 @@ var release = {
                         });
 
                         archive.bulk([
-                            { expand: true, cwd: basicDir, src: ['**/*'] }
+                            { expand: true, cwd: oldDir, src: ['**/*'] }
                         ]);
 
                         archive.finalize();
