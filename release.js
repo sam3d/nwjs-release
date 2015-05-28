@@ -388,66 +388,91 @@ var release = {
 
                 // There are builds specified!
 
-                // Prepare builds
-                var nw = new NwBuilder({
-                    files: "./*",
-                    version: "0.12.2",
-                    platforms: release.config.builds
-                });
+                // Find icon files and then whether they exist
+                var macIcns = false, winIco = false;
 
-                // Notify user of download
-                console.log("---> Downloading assets");
+                // Search for mac icon
+                fs.stat("mac.icns", function(err, stat){
+                    if (err == null){
 
-                // Build
-                nw.build().then(function(){
-
-                    // Notify user of completed builds
-                    console.log("---> All builds completed");
-
-                    // Notify of zipping
-                    console.log("---> Zipping files for upload");
-
-                    // Zip all build files
-                    for (var i = 0; i < release.config.builds.length; i++) {
-
-                        var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
-                        var newDir = "./build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
-
-                        var output = fs.createWriteStream(newDir);
-                        var archive = archiver('zip');
-
-                        archive.pipe(output);
-
-                        archive.on('error', function(err){
-                            throw err;
-                        });
-
-                        archive.bulk([
-                            { expand: true, cwd: oldDir, src: ['**/*'] }
-                        ]);
-
-                        archive.finalize();
+                        // Mac icon exists
+                        console.log("---> Found OS X icon");
+                        macIcns = "mac.icns";
 
                     }
 
-                    // Proceed to next
-                    next();
+                    // Search for windows icon
+                    fs.stat("win.ico", function(err, stat){
+                        if (err == null){
+
+                            // Windows icon exists
+                            console.log("---> Will not use Windows icon (temporarily disabled)");
+                            winIco = /*"win.ico"*/false; // Temporarily disabled
+
+                        }
+
+                        // Prepare builds
+                        var nw = new NwBuilder({
+                            files: "./*",
+                            version: "0.12.2",
+                            platforms: release.config.builds,
+                            macIcns: macIcns,
+                            winIco: winIco
+                        });
+
+                        // Notify user of download
+                        console.log("---> Downloading assets");
+
+                        // Build
+                        nw.build().then(function(){
+
+                            // Notify user of completed builds
+                            console.log("---> All builds completed");
+
+                            // Notify of zipping
+                            console.log("---> Zipping files for upload");
+
+                            // Zip all build files
+                            for (var i = 0; i < release.config.builds.length; i++) {
+
+                                var oldDir = "./build/" + release.config.name + "/" + release.config.builds[i]; + "/";
+                                var newDir = "./build/" + release.config.name + "/" + release.config.name + "-" + release.config.builds[i] + "-" + release.config.version + ".zip";
+
+                                var output = fs.createWriteStream(newDir);
+                                var archive = archiver('zip');
+
+                                archive.pipe(output);
+
+                                archive.on('error', function(err){
+                                    throw err;
+                                });
+
+                                archive.bulk([
+                                    { expand: true, cwd: oldDir, src: ['**/*'] }
+                                ]);
+
+                                archive.finalize();
+
+                            }
+
+                            // Proceed to next
+                            next();
 
 
-                }).catch(function(err){
+                        }).catch(function(err){
 
-                    console.log(err);
+                            console.log(err);
 
-                    // There was an error completing the builds
-                    console.log("---> There was an error completing builds");
-                    console.log("---> Continuing release without them");
+                            // There was an error completing the builds
+                            console.log("---> There was an error completing builds");
+                            console.log("---> Continuing release without them");
 
-                    release.config.releaseBuilds = false;
-                    next();
+                            release.config.releaseBuilds = false;
+                            next();
 
+                        });
+                    });
                 });
-
-
 
             } else {
 
