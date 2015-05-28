@@ -1,5 +1,6 @@
-# nwjs-release
-Automatically build and release your node-webkit (nwjs) builds to github. [![npm version](https://badge.fury.io/js/nwjs-release.svg)](http://badge.fury.io/js/nwjs-release)
+# nwjs-release [![npm version](https://badge.fury.io/js/nwjs-release.svg)](http://badge.fury.io/js/nwjs-release)
+
+Automatically build and release your node-webkit (nwjs) builds to github.
 
 [![NPM](https://nodei.co/npm/nwjs-release.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/nwjs-release/)
 
