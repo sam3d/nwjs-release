@@ -4,7 +4,7 @@
   "description": "automatic versioning and releasing of nwjs projects to github",
   "author": "Sam Holmes",
   "preferGlobal": true,
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "bin": {
     "nwjs-release": "index.js"
   },
