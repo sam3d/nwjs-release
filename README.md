@@ -1,3 +1,10 @@
+# DEPRECATION NOTICE
+This project has been deprecated and is no longer maintained. This was originally an experiment in automating the release process for `nwjs`, but seeing as `electron` is now so much more in use and has its own publishing utilities, this is simply not needed anymore.
+
+As of _Monday 20th February 2017_, this package is officially deprecated.
+
+---
+
 # nwjs-release [![npm version](https://badge.fury.io/js/nwjs-release.svg)](http://badge.fury.io/js/nwjs-release)
 
 Automatically build and release your node-webkit (nwjs) builds to github.
